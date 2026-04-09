@@ -132,7 +132,7 @@ function run(){
     local cuda_graph_opts="--compilation-config '{\"cudagraph_mode\": \"FULL_DECODE_ONLY\", \"level\": 0}'"
     local CALCULATED_MAX_MODEL_LEN=$((input_len + output_len + 1000))
     # 修改多模态
-    local server_cmd="VLLM_LOGGING_LEVEL=DEBUG NCCL_P2P_DISABLE=1  NCCL_IB_DISABLE=1 VLLM_ENFORCE_CUDA_GRAPH=1 vllm serve ${model} --trust-remote-code ${cuda_graph_opts}  --host ${addr} --port ${port} -tp ${tp_size} -pp ${pp_size} --gpu-memory-utilization 0.9  --max-model-len ${CALCULATED_MAX_MODEL_LEN} --limit-mm-per-prompt '{\"image\": 16, \"video\": 0}' &> ${cur_log_dir}/service_${cur_case_name}.log &" #  --mm-processor-kwargs max_pixels=1003520 
+    local server_cmd="CUDA_VISIBLE_DEVICES=0, VLLM_LOGGING_LEVEL=DEBUG NCCL_P2P_DISABLE=1  NCCL_IB_DISABLE=1 VLLM_ENFORCE_CUDA_GRAPH=1 vllm serve ${model} --trust-remote-code ${cuda_graph_opts}  --host ${addr} --port ${port} -tp ${tp_size} -pp ${pp_size} --gpu-memory-utilization 0.9  --max-model-len ${CALCULATED_MAX_MODEL_LEN} --limit-mm-per-prompt '{\"image\": 16, \"video\": 0}' &> ${cur_log_dir}/service_${cur_case_name}.log &" #  --mm-processor-kwargs max_pixels=1003520 
     echo $server_cmd
     eval $server_cmd
     pid_list+=($!)
