@@ -1,7 +1,16 @@
 #!/bin/bash
 
+# 设置统一的目标文件夹，用于存放结果
+DATE=`date +%m%d%H%M%S`
+LOG_DIR="results_${DATE}/"
+mkdir -p ${LOG_DIR}
+cp $0 ${LOG_DIR}
+
+# 将本脚本的执行输出同时重定向到文件中
+exec > >(tee ${LOG_DIR}run.log) 2>&1
+
 # 1. 后台启动 vLLM 服务，并记录进程ID (PID)
-nohup env VLLM_ENFORCE_CUDA_GRAPH=1 vllm serve /nvme/hztest/model/FLUX.2-klein-4B --omni --port 8092 --host 127.0.0.1 --tensor-parallel-size 4 --gpu-memory-utilization 0.9 > vllm.log 2>&1 &
+nohup env VLLM_ENFORCE_CUDA_GRAPH=1 vllm serve /nvme/hztest/model/FLUX.2-klein-4B --omni --port 8092 --host 127.0.0.1 --tensor-parallel-size 4 --gpu-memory-utilization 0.9 > ${LOG_DIR}vllm.log 2>&1 &
 VLLM_PID=$! # 获取后台进程的 PID 并保存到变量
 
 # 2. 等待 vLLM 服务完全启动
